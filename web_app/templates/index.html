@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flick Finder</title>
+  <!-- Google Fonts: Quicksand for body (keep it simple, title uses system font) -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ static_version }}">
+  </head>
+  <body class="site-overlay">
+    <main class="container">
+      <header class="hero">
+        <!-- Title rendered as plain text in the user's dark-pink (Dark Berry) -->
+        <h1 class="brand">
+          <img class="brand-img" loading="lazy" src="{{ url_for('static', filename='title_remote.png') }}?v={{ static_version }}" alt="Flick Finder">
+        </h1>
+        <!-- Info icon (opens modal) -->
+        <button class="info-icon" aria-label="About Flick Finder" title="About Flick Finder">i</button>
+      </header>
+
+      <section class="search">
+        <form method="post" class="search-form" autocomplete="off">
+          <input type="text" name="title" class="input" placeholder="e.g. Inception" value="{{ query|e }}" />
+          <div class="filters-row">
+            <label for="genre">Genre</label>
+            <!-- compact dropdown (single-select) for a cleaner layout; backend still accepts multiple genres via URL params if needed -->
+            <select name="genre" id="genre" class="select">
+              <option value="">Any</option>
+              {% for g in available_genres %}
+                <option value="{{ g }}" {% if g in selected_genres %}selected{% endif %}>{{ g }}</option>
+              {% endfor %}
+            </select>
+
+            
+
+            <label for="actor">Actor</label>
+            <div class="typeahead">
+              <input type="text" name="actor" id="actor" class="input" placeholder="Start typing actor(s), comma-separated" value="{{ selected_actor_text|e }}" autocomplete="off" aria-autocomplete="list" aria-controls="actor-suggestions" />
+              <ul id="actor-suggestions" class="suggestions" aria-hidden="true" role="listbox"></ul>
+            </div>
+          </div>
+          <button type="submit" class="btn">Search</button>
+        </form>
+        {% if error %}
+          <p class="error">{{ error }}</p>
+        {% endif %}
+        <!-- Debug panel removed for production use -->
+      </section>
+
+  <script>
+    // improved typeahead for actor input: keyboard nav + click select (supports comma-separated multiple actors)
+    (function(){
+      const form = document.querySelector('.search-form');
+      const actorInput = document.getElementById('actor');
+      const box = document.getElementById('actor-suggestions');
+      let timer = null;
+      let items = [];
+      let focusIdx = -1;
+
+      function clearSuggestions(){ box.innerHTML=''; box.setAttribute('aria-hidden','true'); items = []; focusIdx = -1; }
+
+      function renderSuggestions(list){
+        box.innerHTML = '';
+        items = list || [];
+        if(!items.length){ clearSuggestions(); return; }
+        items.forEach((it, i)=>{
+          const li = document.createElement('li');
+          li.textContent = it;
+          li.setAttribute('role', 'option');
+          li.setAttribute('data-idx', i);
+          li.tabIndex = -1;
+          li.addEventListener('click', ()=>{
+            // insert selected suggestion into the last comma-separated token and keep the input (do not auto-submit)
+            const parts = actorInput.value.split(',');
+            // replace last token with trimmed suggestion
+            parts[parts.length-1] = it;
+            // rebuild value, trim parts and add trailing comma+space for next entry
+            const newVal = parts.map(p=>p.trim()).filter(Boolean).join(', ') + ', ';
+            actorInput.value = newVal;
+            clearSuggestions();
+            actorInput.focus();
+          });
+          li.addEventListener('mouseenter', ()=>{ setFocus(i); });
+          box.appendChild(li);
+        });
+        box.setAttribute('aria-hidden','false');
+      }
+
+      function setFocus(i){
+        const children = Array.from(box.children);
+        children.forEach(c=> c.classList.remove('highlight'));
+        if(i >= 0 && i < children.length){
+          children[i].classList.add('highlight');
+          focusIdx = i;
+        } else {
+          focusIdx = -1;
+        }
+      }
+
+      actorInput && actorInput.addEventListener('input', (e)=>{
+        // get the last token (after the last comma) to query suggestions
+        const raw = actorInput.value || '';
+        const parts = raw.split(',');
+        const last = parts[parts.length-1].trim();
+        clearTimeout(timer);
+        if(!last){ clearSuggestions(); return; }
+        timer = setTimeout(()=>{
+          fetch(`/autocomplete?type=actor&q=${encodeURIComponent(last)}`)
+            .then(r=>r.json())
+            .then(data=> renderSuggestions(data.slice(0,12)))
+            .catch(()=> clearSuggestions());
+        }, 150);
+      });
+
+      actorInput && actorInput.addEventListener('keydown', (ev)=>{
+        const hidden = box.getAttribute('aria-hidden') === 'true';
+        const n = box.children.length;
+        if(ev.key === 'ArrowDown'){
+          ev.preventDefault();
+          const next = Math.min(n-1, focusIdx + 1);
+          setFocus(next);
+        } else if(ev.key === 'ArrowUp'){
+          ev.preventDefault();
+          const prev = Math.max(0, focusIdx - 1);
+          setFocus(prev);
+        } else if(ev.key === 'Enter'){
+          if(!hidden && focusIdx >= 0 && items[focusIdx]){
+            // insert the focused suggestion into the last token, but do not auto-submit
+            ev.preventDefault();
+            const parts = actorInput.value.split(',');
+            parts[parts.length-1] = items[focusIdx];
+            actorInput.value = parts.map(p=>p.trim()).filter(Boolean).join(', ') + ', ';
+            clearSuggestions();
+            actorInput.focus();
+            return;
+          }
+          // otherwise allow form submit to run (search)
+        } else if(ev.key === 'Escape'){
+          clearSuggestions();
+        }
+      });
+
+      // hide suggestions on outside click
+      document.addEventListener('click', (ev)=>{
+        if(!actorInput) return;
+        if(ev.target === actorInput) return;
+        if(!box.contains(ev.target)) clearSuggestions();
+      });
+    })();
+  </script>
+
+  <!-- Info modal -->
+  <div id="info-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" aria-label="Close info">×</button>
+      <h2 id="modal-title">welcome to flick finder</h2>
+      <div class="modal-body">
+        <p>Hi! I'm Oya — an AI/ML student from Switzerland. I love movies and code, so I mashed a few algorithms together to build this little finder.</p>
+        <p>This demo contains about 950'000 movies (sourced from Letterboxd). Newer releases might not yet be in the dataset, sorry in advance if your latest binge is missing.</p>
+        <p>Explore, enjoy, and don't be shy to try filters !</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Info modal handlers
+    (function(){
+      const infoBtn = document.querySelector('.info-icon');
+      const modal = document.getElementById('info-modal');
+      const close = modal && modal.querySelector('.modal-close');
+      function openModal(){ if(!modal) return; modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+      function closeModal(){ if(!modal) return; modal.setAttribute('aria-hidden','true'); document.body.style.overflow='auto'; }
+      infoBtn && infoBtn.addEventListener('click', openModal);
+      close && close.addEventListener('click', closeModal);
+      modal && modal.addEventListener('click', (ev)=>{ if(ev.target === modal) closeModal(); });
+      document.addEventListener('keydown', (ev)=>{ if(ev.key==='Escape') closeModal(); });
+    })();
+  </script>
+
+      {% if recommendations %}
+      <section class="results">
+  <h2 class="results-title">Similar Movies</h2>
+        <div class="cards">
+        {% for r in recommendations %}
+          <article class="card flip-card" tabindex="0" role="button" aria-pressed="false">
+            <div class="flip-inner">
+              <div class="flip-front">
+                {% if r.Poster_Link %}
+                <img class="poster" loading="lazy" src="{{ r.Poster_Link }}" alt="Poster: {{ r.Series_Title }}">
+                {% endif %}
+                <div class="card-body front-content">
+                  <h3 class="movie-title">{{ r.Series_Title }}</h3>
+                  <p class="meta">{{ r.Genre }}</p>
+                  <p class="rating">⭐ {{ r.IMDB_Rating }}</p>
+                  {% if r.Tagline %}
+                    <p class="tagline">{{ r.Tagline }}</p>
+                  {% elif r.Overview %}
+                    <p class="tagline">{{ r.Overview[:120] }}{% if r.Overview|length > 120 %}…{% endif %}</p>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="flip-back">
+                <div class="card-body back-content">
+                  <h3 class="movie-title">{{ r.Series_Title }}</h3>
+                  {% if r.Overview %}
+                    <p class="overview">{{ r.Overview }}</p>
+                  {% else %}
+                    <p class="overview">No summary available.</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+  <footer class="foot"></footer>
+    <div class="version-banner">v{{ static_version }}</div>
+    </main>
+  <script>
+    // card flip handlers: click or keyboard (Enter/Space) toggles flip
+    (function(){
+      function toggleCard(card){
+        if(!card) return;
+        const inner = card.querySelector('.flip-inner');
+        if(!inner) return;
+        card.classList.toggle('is-flipped');
+        const pressed = card.classList.contains('is-flipped');
+        card.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+      }
+      document.querySelectorAll('.flip-card').forEach(card=>{
+        card.addEventListener('click', (ev)=>{ toggleCard(card); });
+        card.addEventListener('keydown', (ev)=>{
+          if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); toggleCard(card); }
+        });
+      });
+    })();
+  </script>
+  </body>
+</html>

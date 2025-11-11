@@ -1,0 +1,11 @@
+{"method": "POST", "title": "Inception", "selected_genres": [], "selected_actors": [], "values": {"title": ["Inception"]}}
+{"method": "POST", "title": "inception", "selected_genres": [], "selected_actors": [], "values": {"genre": [""], "actor": [""], "title": ["inception"]}}
+{"method": "POST", "title": "", "selected_genres": ["Animation"], "selected_actors": [], "values": {"genre": ["Animation"], "actor": [""], "title": [""]}}
+{"method": "POST", "title": "inception", "selected_genres": ["Animation"], "selected_actors": [], "values": {"genre": ["Animation"], "actor": [""], "title": ["inception"]}}
+# Truncated: debug log cleared prior to push
+
+{"method": "POST", "title": "inception", "selected_genres": [], "selected_actors": [], "values": {"actor": [""], "title": ["inception"], "genre": [""]}}
+{"method": "POST", "title": "inception", "selected_genres": [], "selected_actors": [], "values": {"actor": [""], "title": ["inception"], "genre": [""]}}
+{"method": "POST", "title": "", "selected_genres": ["Science Fiction"], "selected_actors": [], "values": {"actor": [""], "title": [""], "genre": ["Science Fiction"]}}
+{"method": "POST", "title": "", "selected_genres": [], "selected_actors": ["Anya Taylor-Joy"], "values": {"actor": ["Anya Taylor-Joy, "], "title": [""], "genre": [""]}}
+{"method": "POST", "title": "", "selected_genres": [], "selected_actors": ["Anya Taylor-Joy"], "values": {"actor": ["Anya Taylor-Joy, "], "title": [""], "genre": [""]}}

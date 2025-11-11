@@ -1,0 +1,201 @@
+:root{
+  /* Palette provided by user (no gradients): */
+  --color-1: #6E1E3A; /* Dark Berry */
+  --color-2: #E9B0C8; /* Bubblegum (accent / light) */
+  --color-3: #D76A4C; /* Carrot (accent / strong) */
+  --color-4: #FADD8B; /* Lemon Curd (light accent) */
+  --color-5: #F7EFEE; /* soft neutral (background lift) */
+  --card: #ffffff;
+  --muted: #6b6b6b;
+  --radius: 14px;
+  --shadow: rgba(0,0,0,0.06);
+}
+.container{max-width:900px;margin:0 auto;padding:8px 16px 100px;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-start;gap:8px}
+.body, body{
+  margin:0; font-family: 'Quicksand', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  /* background = Lemon Curd (solid) per user request */
+  background: var(--color-4);
+  /* main text in Dark Berry for contrast */
+  color: var(--color-1);
+  min-height:100vh;
+  position:relative;
+}
+html, body{
+  height:100%;
+  margin:0; font-family: 'Quicksand', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  /* background = Lemon Curd (solid) per user request */
+  background: var(--color-4);
+  /* main text in Dark Berry for contrast */
+  color: var(--color-1);
+  position:relative;
+  /* allow page scrolling */
+  overflow: auto;
+}
+.site-overlay::after{
+  /* film grain / subtle vignette overlay using repeating gradients; reduced opacity so stripes stay bright */
+  content: "";
+  position:fixed; inset:0; pointer-events:none; z-index:2;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 1px, rgba(0,0,0,0.02) 1px 2px),
+    radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.35) 100%);
+  opacity:0.18; mix-blend-mode:overlay;
+}
+.container{max-width:900px;margin:36px auto;padding:20px}
+.hero{
+  /* make header full-bleed so the title image can span the viewport; reduce top spacing */
+  background: transparent;
+  padding:2px 0 6px; border-radius:0; color:var(--color-1);
+  box-shadow:none; text-align:center; position:relative; overflow:visible; z-index:3;
+  border: none; margin-top:0;
+  /* full-bleed trick: make the hero span the full viewport width */
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+}
+.hero.small{padding:14px}
+.brand{font-family:'Inter', 'Quicksand', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;margin:0;font-size:36px;letter-spacing:1px;color:var(--color-1)}
+.spark{display:inline-block;margin-left:8px}
+.tag{margin:6px 0 0;font-size:14px;color:var(--color-2);font-weight:600}
+
+/* Force-hide any tagline elements so header shows only the title */
+.tag{display:none !important}
+
+/* filmstrip accent at bottom of hero */
+.hero::before{
+  content: "";
+  position:absolute;left:0;right:0;bottom:0;height:28px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 6px, rgba(255,255,255,0.01) 6px 12px);
+  opacity:0.08;
+}
+
+.brand-img{
+  display:block;
+  margin:4px auto 8px;
+  /* reduce title image so it doesn't dominate the header */
+  width:100%;
+  max-width:640px; /* smaller to keep header compact */
+  height:auto;
+  background:transparent;
+  padding:0 !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+.brand-img.small{max-width:420px}
+.brand img{display:block}
+/* tint the title image to the Bordeaux color without modifying the file:
+   - make the image grayscale, then overlay a solid color using mix-blend-mode.
+   - the wrapper ensures the overlay matches the image size. */
+.brand-img-wrap{display:inline-block;position:relative}
+.brand-img{display:block;filter:none !important; /* show original image colors (removed grayscale/tint) */}
+.brand-img-wrap::after{display:none !important; /* disable color overlay on the header image */}
+.info-icon{position:fixed;right:20px;top:18px;width:36px;height:36px;border-radius:50%;background:var(--color-1);color:var(--color-5);border:2px solid rgba(255,255,255,0.12);font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,0.18);z-index:9999}
+.info-icon:hover{transform:translateY(-2px)}
+.search{margin:8px 0}
+.search-form{display:flex;gap:12px;align-items:center}
+.input{flex:1;padding:12px 14px;border-radius:12px;border:2px solid var(--color-1);background:#fff;font-size:16px}
+.input{background:linear-gradient(180deg,var(--color-5),#fff);color:var(--color-1);border-color:rgba(110,30,58,0.06)}
+
+/* simple typeahead suggestions */
+.typeahead{position:relative;display:inline-block;min-width:220px}
+.suggestions{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--card);border-radius:10px;box-shadow:0 8px 18px rgba(0,0,0,0.12);max-height:220px;overflow:auto;list-style:none;margin:0;padding:6px 0;z-index:60;border:1px solid rgba(0,0,0,0.06)}
+.suggestions li{padding:8px 12px;cursor:pointer;color:var(--color-1);font-size:14px}
+.suggestions li:hover{background:var(--color-5)}
+.suggestions[aria-hidden="true"]{display:none}
+.suggestions li.highlight{background:var(--color-2);color:var(--color-1);font-weight:700}
+.btn{background:var(--color-2);border:none;padding:12px 18px;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer;color:var(--color-1);box-shadow:0 10px 22px rgba(110,30,58,0.18)}
+.btn:hover{opacity:0.95;transform:translateY(-2px)}
+.error{color:var(--color-2);margin-top:8px}
+.results{margin-top:1px}
+.results-title{font-size:22px;margin:6px 0 12px;color:var(--color-1)}
+/* ensure result page title uses the regular Quicksand font (not Pacifico) */
+.result-title{font-family: 'Quicksand', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;margin:0;font-size:28px;color:var(--color-1)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding:10px}
+.card{background: var(--color-3);color:var(--color-5);backdrop-filter: blur(0);border-radius:12px;padding:20px;box-shadow:0 8px 18px rgba(0,0,0,0.18);border:1px solid rgba(110,30,58,0.06);transition:transform .18s ease, box-shadow .18s ease;box-sizing:border-box;min-height:320px;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-6px);box-shadow:0 18px 36px rgba(0,0,0,0.35);z-index:2}
+.movie-title{margin:0 0 6px;font-size:16px;color:var(--color-5);font-weight:700}
+.meta{margin:0;color:var(--color-2);font-size:13px}
+.rating{margin-top:8px;font-weight:700;color:var(--color-5)}
+.poster{width:100%;height:260px;object-fit:cover;border-radius:8px;margin-bottom:10px;border:2px solid rgba(0,0,0,0.06);box-shadow:none}
+
+/* Flip card styles */
+.flip-card{perspective:1000px;cursor:pointer;min-height:320px}
+.flip-card .flip-inner{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.flip-card .flip-front,.flip-card .flip-back{position:relative;display:block;width:100%;height:100%;backface-visibility:hidden;border-radius:12px;overflow:hidden}
+.flip-card .flip-back{position:absolute;top:0;left:0;transform:rotateY(180deg);}
+.flip-card.is-flipped .flip-inner{transform:rotateY(180deg)}
+.flip-card .front-content,.flip-card .back-content{padding:18px;background:var(--color-3);color:var(--color-5);height:100%;box-sizing:border-box}
+.flip-card .back-content{overflow:auto}
+.flip-card .tagline{font-style:italic;color:var(--color-5);opacity:0.95;margin-top:10px}
+.flip-card .overview{color:var(--color-5);opacity:0.95}
+
+.flip-card:focus{outline:3px solid rgba(233,176,200,0.25)}
+
+/* text-based brand title styling (uses Inter) */
+.hero .brand-text, .brand .brand-text, .result-title .brand-text, body .container header.hero h1.brand .brand-text{
+  display:block !important;
+  font-family: system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif !important;
+  /* FORCE very small size as requested */
+  font-size:16px !important;
+  line-height:1.05 !important;
+  letter-spacing:0.2px !important;
+  color:var(--color-1) !important;
+  font-weight:600 !important;
+  margin:0 !important;
+  max-width:100% !important;
+  padding:0 !important;
+}
+.brand-text.small{font-size:14px !important}
+
+/* ensure result-title (which uses its own class) follows same sizing */
+.result-title{font-family: system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;margin:0;font-size:16px !important;color:var(--color-1);font-weight:600}
+.overview{margin-top:12px;font-size:14px;color:var(--muted);max-height:none;overflow:visible}
+.foot{text-align:center;margin-top:48px;color:var(--muted);font-size:13px}
+.version-banner{
+  position:fixed;
+  left:16px;
+  bottom:12px;
+  z-index:80;
+  color:var(--muted);
+  font-size:12px;
+  background:transparent;
+  padding:0 4px;
+}
+.debug-panel{margin-top:8px;border-left:3px solid rgba(110,30,58,0.08);padding:8px 12px;background:rgba(255,255,255,0.03);color:var(--color-1);font-size:13px;border-radius:6px}
+.back{display:inline-block;margin-top:12px;color:var(--color-1);text-decoration:none}
+.empty{color:var(--muted)}
+
+/* Modal styles */
+.modal-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,10,10,0.6);z-index:120;opacity:1;visibility:visible;transition:opacity .18s ease}
+.modal-overlay[aria-hidden="true"]{opacity:0;visibility:hidden}
+.modal{background:var(--color-2);color:var(--color-1);border-radius:12px;max-width:720px;width:92%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative}
+.modal h2{margin:0 0 12px;font-size:20px}
+.modal .modal-body{color:var(--color-1);line-height:1.5;font-size:15px}
+.modal-close{position:absolute;right:12px;top:10px;border:none;background:transparent;font-size:24px;color:var(--color-1);cursor:pointer}
+
+@media (max-width:720px){
+  .info-icon{right:12px;top:10px;width:30px;height:30px}
+  .modal{padding:14px}
+}
+
+/* make only modal text lowercase as requested */
+.modal h2, .modal .modal-body, .modal .modal-body p { text-transform: lowercase; }
+
+/* small screens tweaks */
+@media (max-width:420px){
+  .brand{font-size:28px}
+  .input{font-size:15px;padding:10px}
+  .btn{padding:10px 14px;font-size:15px}
+}
+.results{max-height:none;overflow:visible;padding:8px 12px}
+
+/* Responsive grid: 3 columns on wide screens, 2 on medium, 1 on small */
+@media (max-width:1100px){
+  .cards{grid-template-columns:repeat(2,minmax(320px,1fr));justify-content:center}
+}
+@media (max-width:720px){
+  .cards{grid-template-columns:repeat(1,minmax(300px,1fr));justify-content:center}
+  .card{min-height:auto;min-width:unset}
+  .poster{height:200px}
+}

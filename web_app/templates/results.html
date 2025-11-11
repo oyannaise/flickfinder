@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Results — Flick Finder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ static_version }}">
+  </head>
+  <body class="site-overlay">
+    <main class="container">
+      <header class="hero small">
+        <!-- Plain text title for results page (no image, no tagline) -->
+        <h1 class="result-title">
+          <img class="brand-img small" loading="lazy" src="{{ url_for('static', filename='title_remote.png') }}?v={{ static_version }}" alt="Flick Finder" style="width:100%;max-width:420px;height:auto;display:block;margin:4px auto 10px;">
+        </h1>
+      </header>
+
+      <section class="results">
+        {% if recommendations %}
+          <div class="cards">
+            {% for r in recommendations %}
+              <article class="card">
+                {% if r.Poster_Link %}
+                  <img class="poster" loading="lazy" src="{{ r.Poster_Link }}" alt="Poster: {{ r.Series_Title }}">
+                {% endif %}
+                <div class="card-body">
+                  <h3 class="movie-title">{{ r.Series_Title }}</h3>
+                  <p class="meta">{{ r.Genre }}</p>
+                  <p class="rating">⭐ {{ r.IMDB_Rating }}</p>
+                  {% if r.Overview %}
+                    <p class="overview">{{ r.Overview }}</p>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="empty">No recommendations found.</p>
+        {% endif %}
+        <p><a class="back" href="/">← New search</a></p>
+      </section>
+
+  <footer class="foot"></footer>
+    </main>
+  </body>
+</html>
