@@ -1,12 +1,4 @@
-# Movie Recommender 
-
-Kleine Flask-Web-App zum Suchen ähnlicher Filme basierend auf dem `imdb_top_1000.csv` Dataset.
-
-Voraussetzungen
-- Python 3.8+
-- Abhängigkeiten installieren:
-
-# Movie Recommender (Web)
+# Movie Recommender
 
 This is a small Flask web app that returns similar movies using pre-built artifacts.
 It's intended for local development and demos.
